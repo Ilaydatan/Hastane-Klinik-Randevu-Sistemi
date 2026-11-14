@@ -1,0 +1,129 @@
+@model DoktorDashboardViewModel
+@{
+    ViewData["Title"] = "Doktor Paneli";
+}
+
+<div class="container-xl">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+        <div>
+            <h1 class="page-title h3 mb-1">Merhaba, @Model.Doktor.TamAd</h1>
+            <p class="text-secondary mb-0">
+                @Model.Doktor.UzmanlikAlani
+                @if (Model.Doktor.Bolum != null) { <span> · @Model.Doktor.Bolum.Ad</span> }
+                @if (Model.Doktor.Kurum != null) { <span> · @Model.Doktor.Kurum.Ad</span> }
+            </p>
+        </div>
+        <a asp-action="Program" class="btn btn-outline-light">
+            <i class="bi bi-clock-history me-1"></i>Çalışma Programı
+        </a>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="stat-card">
+                <div class="stat-icon blue"><i class="bi bi-calendar-day"></i></div>
+                <div><div class="stat-value">@Model.BugunToplamRandevu</div><div class="stat-label">Bugünkü randevu</div></div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card">
+                <div class="stat-icon amber"><i class="bi bi-hourglass-split"></i></div>
+                <div><div class="stat-value">@Model.BekleyenSayisi</div><div class="stat-label">Onay bekleyen</div></div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card">
+                <div class="stat-icon cyan"><i class="bi bi-calendar-week"></i></div>
+                <div><div class="stat-value">@Model.BuHaftaRandevu</div><div class="stat-label">Önümüzdeki 7 gün</div></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-6">
+            <div class="med-card h-100">
+                <div class="med-card-header">
+                    <h2 class="h6 mb-0"><i class="bi bi-calendar-day me-2"></i>Bugünün randevuları</h2>
+                </div>
+                <div class="med-card-body">
+                    @if (!Model.BugunRandevular.Any())
+                    {
+                        <div class="empty-state"><i class="bi bi-cup-hot"></i>Bugün için randevu yok.</div>
+                    }
+                    @foreach (var r in Model.BugunRandevular)
+                    {
+                        <div class="randevu-item">
+                            <div>
+                                <div class="fw-semibold">@r.BaslangicZamani.ToString("HH:mm") – @r.BitisZamani.ToString("HH:mm")</div>
+                                <div class="small text-secondary">@r.Hasta?.TamAd · @r.Hizmet?.Ad</div>
+                            </div>
+                            <partial name="_DurumBadge" model="r.Durum" />
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="med-card h-100">
+                <div class="med-card-header">
+                    <h2 class="h6 mb-0"><i class="bi bi-hourglass-split me-2"></i>Onay bekleyenler</h2>
+                    <a asp-action="Randevular" class="small">Tüm randevular</a>
+                </div>
+                <div class="med-card-body">
+                    @if (!Model.BekleyenRandevular.Any())
+                    {
+                        <div class="empty-state"><i class="bi bi-check2-all"></i>Bekleyen randevu yok.</div>
+                    }
+                    @foreach (var r in Model.BekleyenRandevular)
+                    {
+                        <div class="randevu-item">
+                            <div>
+                                <div class="fw-semibold">@r.Hasta?.TamAd</div>
+                                <div class="small text-secondary">@r.BaslangicZamani.ToString("dd.MM.yyyy HH:mm") · @r.Hizmet?.Ad</div>
+                            </div>
+                            <div class="d-flex gap-1">
+                                <form asp-action="Onayla" asp-route-id="@r.Id" method="post">
+                                    <button type="submit" class="btn btn-sm btn-success" title="Onayla"><i class="bi bi-check-lg"></i></button>
+                                </form>
+                                <a asp-action="Reddet" asp-route-id="@r.Id" class="btn btn-sm btn-outline-danger" title="Reddet">
+                                    <i class="bi bi-x-lg"></i>
+                                </a>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12">
+            <div class="med-card">
+                <div class="med-card-header">
+                    <h2 class="h6 mb-0"><i class="bi bi-clock me-2"></i>Haftalık çalışma saatlerim</h2>
+                    <a asp-action="Program" class="small">Düzenle</a>
+                </div>
+                <div class="med-card-body">
+                    @if (!Model.ZamanDilimleri.Any())
+                    {
+                        <div class="empty-state">
+                            <i class="bi bi-clock"></i>
+                            Henüz çalışma saati tanımlamadınız. Hastalar randevu alabilsin diye
+                            <a asp-action="Program">çalışma programınızı</a> oluşturun.
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="d-flex flex-wrap gap-2">
+                            @foreach (var z in Model.ZamanDilimleri.OrderBy(x => x.Gun).ThenBy(x => x.BaslangicSaati))
+                            {
+                                <span class="badge text-bg-dark border fw-normal px-3 py-2">
+                                    <strong>@z.Gun</strong> · @z.BaslangicSaati.ToString("HH:mm") – @z.BitisSaati.ToString("HH:mm")
+                                </span>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

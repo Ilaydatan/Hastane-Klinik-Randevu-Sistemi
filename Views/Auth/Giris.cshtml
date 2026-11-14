@@ -1,0 +1,48 @@
+@model GirisViewModel
+@{
+    ViewData["Title"] = "Giriş Yap";
+}
+
+<div class="container-xl auth-wrap">
+    <div class="auth-card">
+        <div class="med-card med-card-body p-4">
+            <div class="text-center mb-4">
+                <div class="brand-icon mx-auto mb-3" style="width:52px;height:52px;font-size:1.5rem;">
+                    <i class="bi bi-heart-pulse-fill"></i>
+                </div>
+                <h1 class="h4 page-title mb-1">Tekrar hoş geldiniz</h1>
+                <p class="text-secondary mb-0">Hesabınıza giriş yapın</p>
+            </div>
+
+            <form asp-action="Giris" method="post" novalidate>
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small"></div>
+                <input type="hidden" asp-for="DonusUrl" />
+
+                <div class="mb-3">
+                    <label asp-for="Email" class="form-label"></label>
+                    <input asp-for="Email" class="form-control" placeholder="ornek@mail.com" autocomplete="username" />
+                    <span asp-validation-for="Email" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Sifre" class="form-label"></label>
+                    <input asp-for="Sifre" class="form-control" placeholder="••••••••" autocomplete="current-password" />
+                    <span asp-validation-for="Sifre" class="text-danger small"></span>
+                </div>
+
+                <div class="form-check mb-4">
+                    <input asp-for="BeniHatirla" class="form-check-input" />
+                    <label asp-for="BeniHatirla" class="form-check-label"></label>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100 py-2">
+                    <i class="bi bi-box-arrow-in-right me-1"></i>Giriş Yap
+                </button>
+            </form>
+
+            <p class="text-center text-secondary small mt-4 mb-0">
+                Hesabınız yok mu? <a asp-action="Kayit">Kayıt olun</a>
+            </p>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,59 @@
+@model IEnumerable<Randevu>
+@{
+    ViewData["Title"] = "Tüm Randevular";
+}
+
+<div class="container-xl">
+    <h1 class="page-title h3 mb-4">Tüm randevular</h1>
+
+    <div class="med-card">
+        @if (!Model.Any())
+        {
+            <div class="empty-state"><i class="bi bi-calendar-x"></i>Henüz randevu yok.</div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-med align-middle">
+                    <thead>
+                        <tr>
+                            <th>Tarih</th>
+                            <th>Hasta</th>
+                            <th>Doktor</th>
+                            <th>Hizmet</th>
+                            <th>Durum</th>
+                            <th class="text-end">İşlem</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var r in Model.OrderByDescending(x => x.BaslangicZamani))
+                        {
+                            var iptalEdilebilir = r.Durum.ToString() is "Bekliyor" or "Onaylandi";
+                            <tr>
+                                <td>
+                                    <div class="fw-semibold">@r.BaslangicZamani.ToString("dd.MM.yyyy")</div>
+                                    <div class="small text-secondary">@r.BaslangicZamani.ToString("HH:mm") – @r.BitisZamani.ToString("HH:mm")</div>
+                                </td>
+                                <td>@r.Hasta?.TamAd</td>
+                                <td>@r.Doktor?.TamAd</td>
+                                <td>@r.Hizmet?.Ad</td>
+                                <td><partial name="_DurumBadge" model="r.Durum" /></td>
+                                <td class="text-end">
+                                    @if (iptalEdilebilir)
+                                    {
+                                        <form asp-action="RandevuIptal" asp-route-id="@r.Id" method="post" class="d-inline"
+                                              onsubmit="return confirm('Bu randevu iptal edilsin mi?');">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                <i class="bi bi-x-circle me-1"></i>İptal Et
+                                            </button>
+                                        </form>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>

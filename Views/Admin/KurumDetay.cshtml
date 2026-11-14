@@ -1,0 +1,69 @@
+@model SaglikKurumu
+@{
+    ViewData["Title"] = Model.Ad;
+}
+
+<div class="container-xl">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+        <div>
+            <h1 class="page-title h3 mb-1">@Model.Ad</h1>
+            <span class="badge @(Model is Hastane ? "text-bg-danger" : "text-bg-info")">@Model.KurumTuruAdi</span>
+        </div>
+        <div class="d-flex gap-2">
+            <a asp-action="Kurumlar" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i>Kurumlar</a>
+            <a asp-action="BolumEkle" asp-route-kurumId="@Model.Id" class="btn btn-primary">
+                <i class="bi bi-plus-lg me-1"></i>Bölüm Ekle
+            </a>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-5">
+            <div class="med-card">
+                <div class="med-card-header"><h2 class="h6 mb-0"><i class="bi bi-info-circle me-2"></i>Kurum bilgileri</h2></div>
+                <div class="med-card-body">
+                    <dl class="row mb-0 small">
+                        <dt class="col-5 text-secondary">Adres</dt><dd class="col-7">@(Model.Adres ?? "—")</dd>
+                        <dt class="col-5 text-secondary">Telefon</dt><dd class="col-7">@(Model.Telefon ?? "—")</dd>
+                        <dt class="col-5 text-secondary">E-posta</dt><dd class="col-7">@(Model.Email ?? "—")</dd>
+                        <dt class="col-5 text-secondary">Çalışma saatleri</dt><dd class="col-7">@Model.CalismaBaslangicSaati – @Model.CalismaBitisSaati</dd>
+                        <dt class="col-5 text-secondary">Hafta sonu</dt><dd class="col-7">@(Model.HaftasonuAcikMi ? "Açık" : "Kapalı")</dd>
+                        @if (Model is Hastane h)
+                        {
+                            <dt class="col-5 text-secondary">Yatak kapasitesi</dt><dd class="col-7">@h.YatakKapasitesi</dd>
+                            <dt class="col-5 text-secondary">Acil servis</dt><dd class="col-7">@(h.AcilServisMevcut ? "Var" : "Yok")</dd>
+                        }
+                        else if (Model is Klinik k)
+                        {
+                            <dt class="col-5 text-secondary">Uzmanlık alanı</dt><dd class="col-7">@(k.UzmanlikAlani ?? "—")</dd>
+                        }
+                    </dl>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-7">
+            <div class="med-card">
+                <div class="med-card-header">
+                    <h2 class="h6 mb-0"><i class="bi bi-diagram-3 me-2"></i>Bölümler</h2>
+                    <span class="badge text-bg-secondary">@Model.Bolumler.Count</span>
+                </div>
+                <div class="med-card-body">
+                    @if (!Model.Bolumler.Any())
+                    {
+                        <div class="empty-state">
+                            <i class="bi bi-diagram-3"></i>
+                            Bu kurumda henüz bölüm yok.
+                        </div>
+                    }
+                    @foreach (var b in Model.Bolumler)
+                    {
+                        <div class="randevu-item">
+                            <div class="fw-semibold">@b.Ad</div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

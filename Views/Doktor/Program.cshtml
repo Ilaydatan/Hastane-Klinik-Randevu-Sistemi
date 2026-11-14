@@ -1,0 +1,94 @@
+@model DoktorZamanDilimiViewModel
+@{
+    ViewData["Title"] = "Çalışma Programı";
+    var aktifDilimler = Model.MevcutDilimler
+        .Where(d => d.AktifMi)
+        .OrderBy(d => d.Gun)
+        .ThenBy(d => d.BaslangicSaati)
+        .ToList();
+}
+
+<div class="container-xl">
+    <div class="mb-4">
+        <h1 class="page-title h3 mb-1">Çalışma programı</h1>
+        <p class="text-secondary mb-0">Hastalar yalnızca burada tanımladığınız saatlerde randevu alabilir.</p>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-5">
+            <div class="med-card">
+                <div class="med-card-header">
+                    <h2 class="h6 mb-0"><i class="bi bi-plus-circle me-2"></i>Çalışma saati ekle</h2>
+                </div>
+                <div class="med-card-body">
+                    <form asp-action="ZamanDilimiEkle" method="post">
+                        <input type="hidden" asp-for="DoktorId" />
+
+                        <div class="mb-3">
+                            <label asp-for="YeniDilim.Gun" class="form-label"></label>
+                            <select asp-for="YeniDilim.Gun" asp-items="Html.GetEnumSelectList<HaftaninGunu>()" class="form-select"></select>
+                        </div>
+
+                        <div class="row g-3 mb-4">
+                            <div class="col-6">
+                                <label asp-for="YeniDilim.BaslangicSaati" class="form-label"></label>
+                                <input asp-for="YeniDilim.BaslangicSaati" type="time" class="form-control" />
+                            </div>
+                            <div class="col-6">
+                                <label asp-for="YeniDilim.BitisSaati" class="form-label"></label>
+                                <input asp-for="YeniDilim.BitisSaati" type="time" class="form-control" />
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="bi bi-plus-lg me-1"></i>Saati Ekle
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-7">
+            <div class="med-card">
+                <div class="med-card-header">
+                    <h2 class="h6 mb-0"><i class="bi bi-calendar-week me-2"></i>Tanımlı saatlerim</h2>
+                    <span class="badge text-bg-secondary">@aktifDilimler.Count</span>
+                </div>
+                @if (aktifDilimler.Count == 0)
+                {
+                    <div class="empty-state">
+                        <i class="bi bi-clock"></i>
+                        Henüz çalışma saati eklemediniz.
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-med align-middle">
+                            <thead>
+                                <tr><th>Gün</th><th>Saat aralığı</th><th class="text-end">İşlem</th></tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var d in aktifDilimler)
+                                {
+                                    <tr>
+                                        <td class="fw-semibold">@d.Gun</td>
+                                        <td>@d.BaslangicSaati.ToString("HH:mm") – @d.BitisSaati.ToString("HH:mm")</td>
+                                        <td class="text-end">
+                                            <form asp-action="ZamanDilimiSil" asp-route-id="@d.Id" method="post" class="d-inline"
+                                                  onsubmit="return confirm('Bu çalışma saati kaldırılsın mı?');">
+                                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

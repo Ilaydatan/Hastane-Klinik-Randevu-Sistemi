@@ -1,0 +1,57 @@
+@model IEnumerable<SaglikKurumu>
+@{
+    ViewData["Title"] = "Kurumlar";
+}
+
+<div class="container-xl">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+        <h1 class="page-title h3 mb-0">Kurumlar</h1>
+        <a asp-action="KurumEkle" class="btn btn-primary"><i class="bi bi-building-add me-1"></i>Kurum Ekle</a>
+    </div>
+
+    <div class="med-card">
+        @if (!Model.Any())
+        {
+            <div class="empty-state"><i class="bi bi-building-x"></i>Henüz kurum eklenmemiş.</div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-med align-middle">
+                    <thead>
+                        <tr>
+                            <th>Ad</th>
+                            <th>Tür</th>
+                            <th>Adres</th>
+                            <th>Telefon</th>
+                            <th>Çalışma saatleri</th>
+                            <th class="text-end">İşlem</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var k in Model)
+                        {
+                            <tr>
+                                <td class="fw-semibold">@k.Ad</td>
+                                <td>
+                                    <span class="badge @(k is Hastane ? "text-bg-danger" : "text-bg-info")">@k.KurumTuruAdi</span>
+                                </td>
+                                <td class="small text-secondary">@k.Adres</td>
+                                <td>@k.Telefon</td>
+                                <td>@k.CalismaBaslangicSaati – @k.CalismaBitisSaati</td>
+                                <td class="text-end">
+                                    <a asp-action="KurumDetay" asp-route-id="@k.Id" class="btn btn-sm btn-outline-light">
+                                        <i class="bi bi-eye me-1"></i>Detay
+                                    </a>
+                                    <a asp-action="BolumEkle" asp-route-kurumId="@k.Id" class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-plus-lg me-1"></i>Bölüm
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>

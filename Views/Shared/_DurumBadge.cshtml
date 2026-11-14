@@ -1,0 +1,13 @@
+@model AppointmentStatus
+@{
+    var (renk, etiket) = Model.ToString() switch
+    {
+        "Bekliyor"   => ("warning", "Bekliyor"),
+        "Onaylandi"  => ("success", "Onaylandı"),
+        "Reddedildi" => ("danger", "Reddedildi"),
+        "Iptal"      => ("secondary", "İptal"),
+        "Tamamlandi" => ("info", "Tamamlandı"),
+        _            => ("light", Model.ToString())
+    };
+}
+<span class="badge text-bg-@renk">@etiket</span>

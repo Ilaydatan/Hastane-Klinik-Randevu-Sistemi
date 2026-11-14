@@ -1,0 +1,117 @@
+@model HastaneRandevu.Controllers.DoktorEkleViewModel
+@{
+    ViewData["Title"] = "Doktor Ekle";
+    var kurumlar = (IEnumerable<SelectListItem>)ViewBag.Kurumlar;
+}
+
+<div class="container-xl">
+    <div class="mb-4">
+        <h1 class="page-title h3 mb-1">Doktor ekle</h1>
+        <p class="text-secondary mb-0">Doktor hesabı oluşturulur; e-posta ve şifreyle giriş yapabilir.</p>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-9">
+            <div class="med-card med-card-body p-4">
+                <form asp-action="DoktorEkle" method="post" novalidate>
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small"></div>
+
+                    <div class="row g-3">
+                        <div class="col-md-2">
+                            <label asp-for="Unvan" class="form-label">Unvan</label>
+                            <input asp-for="Unvan" class="form-control" />
+                        </div>
+                        <div class="col-md-5">
+                            <label asp-for="Ad" class="form-label">Ad</label>
+                            <input asp-for="Ad" class="form-control" />
+                            <span asp-validation-for="Ad" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-5">
+                            <label asp-for="Soyad" class="form-label">Soyad</label>
+                            <input asp-for="Soyad" class="form-control" />
+                            <span asp-validation-for="Soyad" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="Email" class="form-label">E-posta</label>
+                            <input asp-for="Email" type="email" class="form-control" />
+                            <span asp-validation-for="Email" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Telefon" class="form-label">Telefon</label>
+                            <input asp-for="Telefon" class="form-control" />
+                            <span asp-validation-for="Telefon" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="Sifre" class="form-label">Şifre</label>
+                            <input asp-for="Sifre" type="text" class="form-control" autocomplete="off" />
+                            <span asp-validation-for="Sifre" class="text-danger small"></span>
+                            <div class="form-text">En az 6 karakter, 1 rakam ve 1 büyük harf.</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="UzmanlikAlani" class="form-label">Uzmanlık alanı</label>
+                            <input asp-for="UzmanlikAlani" class="form-control" placeholder="Örn. Kardiyoloji" />
+                            <span asp-validation-for="UzmanlikAlani" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="KurumId" class="form-label">Kurum</label>
+                            <select asp-for="KurumId" asp-items="kurumlar" class="form-select">
+                                <option value="">Kurum seçin</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="BolumId" class="form-label">Bölüm</label>
+                            <select asp-for="BolumId" class="form-select" data-selected="@Model.BolumId">
+                                <option value="">Önce kurum seçin</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="DeneyimYili" class="form-label">Deneyim (yıl)</label>
+                            <input asp-for="DeneyimYili" type="number" min="0" class="form-control" />
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="MuayeneUcreti" class="form-label">Muayene ücreti (₺)</label>
+                            <input asp-for="MuayeneUcreti" type="number" min="0" step="1" class="form-control" />
+                        </div>
+
+                        <div class="col-12">
+                            <label asp-for="Biyografi" class="form-label">Biyografi</label>
+                            <textarea asp-for="Biyografi" class="form-control" rows="3"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2 mt-4">
+                        <a asp-action="Doktorlar" class="btn btn-outline-secondary">Vazgeç</a>
+                        <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg me-1"></i>Doktoru Ekle</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+(() => {
+    const kurum = document.getElementById('KurumId');
+    const bolum = document.getElementById('BolumId');
+    const url = '@Url.Action("BolumleriGetir", "Admin")';
+
+    async function yukle(secili) {
+        bolum.innerHTML = '';
+        if (!kurum.value) { bolum.add(new Option('Önce kurum seçin', '')); return; }
+        bolum.add(new Option('Bölüm seçin', ''));
+        const r = await fetch(url + '?kurumId=' + encodeURIComponent(kurum.value));
+        if (!r.ok) return;
+        (await r.json()).forEach(b => bolum.add(new Option(b.ad, b.id)));
+        if (secili) bolum.value = secili;
+    }
+
+    kurum.addEventListener('change', () => yukle());
+    if (kurum.value) yukle(bolum.dataset.selected);
+})();
+</script>
+}

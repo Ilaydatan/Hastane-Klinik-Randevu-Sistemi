@@ -1,0 +1,105 @@
+@model HastaneRandevu.Controllers.SaglikKurumuEkleViewModel
+@{
+    ViewData["Title"] = "Kurum Ekle";
+    var turler = (IEnumerable<SelectListItem>)ViewBag.KurumTurleri;
+}
+
+<div class="container-xl">
+    <div class="mb-4">
+        <h1 class="page-title h3 mb-1">Kurum ekle</h1>
+        <p class="text-secondary mb-0">Hastane veya klinik oluşturun. Türe göre ek alanlar açılır.</p>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="med-card med-card-body p-4">
+                <form asp-action="KurumEkle" method="post" novalidate>
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small"></div>
+
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label asp-for="KurumTuru" class="form-label">Kurum türü</label>
+                            <select asp-for="KurumTuru" asp-items="turler" class="form-select"></select>
+                        </div>
+                        <div class="col-md-8">
+                            <label asp-for="Ad" class="form-label">Kurum adı</label>
+                            <input asp-for="Ad" class="form-control" />
+                            <span asp-validation-for="Ad" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-12">
+                            <label asp-for="Adres" class="form-label"></label>
+                            <input asp-for="Adres" class="form-control" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="Telefon" class="form-label"></label>
+                            <input asp-for="Telefon" class="form-control" />
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Email" class="form-label">E-posta</label>
+                            <input asp-for="Email" type="email" class="form-control" />
+                        </div>
+
+                        <div class="col-md-4">
+                            <label asp-for="CalismaBaslangicSaati" class="form-label">Açılış saati</label>
+                            <input asp-for="CalismaBaslangicSaati" type="time" class="form-control" />
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="CalismaBitisSaati" class="form-label">Kapanış saati</label>
+                            <input asp-for="CalismaBitisSaati" type="time" class="form-control" />
+                        </div>
+                        <div class="col-md-4 d-flex align-items-end">
+                            <div class="form-check mb-2">
+                                <input asp-for="HaftasonuAcikMi" class="form-check-input" />
+                                <label asp-for="HaftasonuAcikMi" class="form-check-label">Hafta sonu açık</label>
+                            </div>
+                        </div>
+
+                        <div id="hastaneAlanlari" class="col-12">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label asp-for="YatakKapasitesi" class="form-label">Yatak kapasitesi</label>
+                                    <input asp-for="YatakKapasitesi" type="number" min="0" class="form-control" />
+                                </div>
+                                <div class="col-md-6 d-flex align-items-end">
+                                    <div class="form-check mb-2">
+                                        <input asp-for="AcilServisMevcut" class="form-check-input" />
+                                        <label asp-for="AcilServisMevcut" class="form-check-label">Acil servis mevcut</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="klinikAlanlari" class="col-12" style="display:none;">
+                            <label asp-for="UzmanlikAlani" class="form-label">Uzmanlık alanı</label>
+                            <input asp-for="UzmanlikAlani" class="form-control" placeholder="Örn. Diş hekimliği" />
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2 mt-4">
+                        <a asp-action="Kurumlar" class="btn btn-outline-secondary">Vazgeç</a>
+                        <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg me-1"></i>Kaydet</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+(() => {
+    const tur = document.getElementById('KurumTuru');
+    const hastane = document.getElementById('hastaneAlanlari');
+    const klinik = document.getElementById('klinikAlanlari');
+    const guncelle = () => {
+        const hastaneMi = tur.selectedOptions[0].text.trim() === 'Hastane';
+        hastane.style.display = hastaneMi ? '' : 'none';
+        klinik.style.display = hastaneMi ? 'none' : '';
+    };
+    tur.addEventListener('change', guncelle);
+    guncelle();
+})();
+</script>
+}

@@ -1,0 +1,180 @@
+@model RandevuOlusturViewModel
+@{
+    ViewData["Title"] = "Yeni Randevu";
+}
+
+<div class="container-xl">
+    <div class="mb-4">
+        <h1 class="page-title h3 mb-1">Yeni randevu al</h1>
+        <p class="text-secondary mb-0">Kurum, bölüm, doktor ve hizmeti seçin; ardından uygun bir saat belirleyin.</p>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="med-card med-card-body p-4">
+                <form asp-action="YeniRandevu" method="post" novalidate>
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small"></div>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label asp-for="SeciliKurumId" class="form-label">1. Kurum</label>
+                            <select asp-for="SeciliKurumId" asp-items="Model.Kurumlar" class="form-select">
+                                <option value="">Kurum seçin</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="SeciliBolumId" class="form-label">2. Bölüm</label>
+                            <select asp-for="SeciliBolumId" asp-items="Model.Bolumler" class="form-select">
+                                <option value="">Önce kurum seçin</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="SeciliDoktorId" class="form-label">3. Doktor</label>
+                            <select asp-for="SeciliDoktorId" asp-items="Model.Doktorlar" class="form-select">
+                                <option value="">Önce bölüm seçin</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="SeciliHizmetId" class="form-label">4. Hizmet</label>
+                            <select asp-for="SeciliHizmetId" asp-items="Model.Hizmetler" class="form-select">
+                                <option value="">Önce bölüm seçin</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="SeciliTarih" class="form-label">5. Tarih</label>
+                            <input asp-for="SeciliTarih" type="date" class="form-control"
+                                   min="@DateTime.Today.ToString("yyyy-MM-dd")" />
+                            <span asp-validation-for="SeciliTarih" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="SeciliSaat" class="form-label">6. Saat</label>
+                            <select asp-for="SeciliSaat" class="form-select"
+                                    data-selected="@(Model.SeciliSaat?.ToString("yyyy-MM-ddTHH:mm"))">
+                                <option value="">Önce doktor, hizmet ve tarih seçin</option>
+                            </select>
+                            <span asp-validation-for="SeciliSaat" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-12">
+                            <div id="hizmetBilgi" class="small text-secondary"></div>
+                        </div>
+
+                        <div class="col-12">
+                            <label asp-for="HastaNotlari" class="form-label"></label>
+                            <textarea asp-for="HastaNotlari" class="form-control" rows="3"
+                                      placeholder="Doktorun bilmesini istediğiniz bir şey varsa yazın"></textarea>
+                            <span asp-validation-for="HastaNotlari" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2 mt-4">
+                        <a asp-action="Dashboard" class="btn btn-outline-secondary">Vazgeç</a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-calendar-check me-1"></i>Randevuyu Oluştur
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+(() => {
+    const el = id => document.getElementById(id);
+    const kurum = el('SeciliKurumId'), bolum = el('SeciliBolumId'), doktor = el('SeciliDoktorId'),
+          hizmet = el('SeciliHizmetId'), tarih = el('SeciliTarih'), saat = el('SeciliSaat'),
+          bilgi = el('hizmetBilgi');
+
+    const urls = {
+        bolum:  '@Url.Action("BolumleriGetir", "Hasta")',
+        doktor: '@Url.Action("DoktorlariGetir", "Hasta")',
+        hizmet: '@Url.Action("HizmetleriGetir", "Hasta")',
+        saat:   '@Url.Action("UygunSaatleriGetir", "Hasta")'
+    };
+
+    const getJson = async (url, params) => {
+        const r = await fetch(url + '?' + new URLSearchParams(params));
+        return r.ok ? r.json() : [];
+    };
+    const reset = (sel, placeholder) => { sel.innerHTML = ''; sel.add(new Option(placeholder, '')); };
+    const fill = (sel, placeholder, items, toOption, selected) => {
+        reset(sel, placeholder);
+        items.forEach(i => sel.add(toOption(i)));
+        if (selected) sel.value = selected;
+    };
+
+    function bilgiGuncelle() {
+        const o = hizmet.selectedOptions[0];
+        bilgi.textContent = (o && o.dataset.sure)
+            ? 'Seçilen hizmet: yaklaşık ' + o.dataset.sure + ' dakika sürer.'
+            : '';
+    }
+
+    async function bolumleriYukle(secili) {
+        reset(doktor, 'Önce bölüm seçin');
+        reset(hizmet, 'Önce bölüm seçin');
+        reset(saat, 'Önce doktor, hizmet ve tarih seçin');
+        bilgiGuncelle();
+        if (!kurum.value) { reset(bolum, 'Önce kurum seçin'); return; }
+        const items = await getJson(urls.bolum, { kurumId: kurum.value });
+        fill(bolum, 'Bölüm seçin', items, i => new Option(i.ad, i.id), secili);
+    }
+
+    async function bolumDetayYukle(seciliDoktor, seciliHizmet) {
+        reset(saat, 'Önce doktor, hizmet ve tarih seçin');
+        if (!bolum.value) {
+            reset(doktor, 'Önce bölüm seçin');
+            reset(hizmet, 'Önce bölüm seçin');
+            bilgiGuncelle();
+            return;
+        }
+        const [dr, hz] = await Promise.all([
+            getJson(urls.doktor, { bolumId: bolum.value }),
+            getJson(urls.hizmet, { bolumId: bolum.value })
+        ]);
+        fill(doktor, 'Doktor seçin', dr,
+            i => new Option(i.ad + (i.uzmanlikAlani ? ' — ' + i.uzmanlikAlani : ''), i.id), seciliDoktor);
+        fill(hizmet, 'Hizmet seçin', hz, i => {
+            const o = new Option(i.ad + ' (' + i.sureDakika + ' dk) — ' + Number(i.ucret).toLocaleString('tr-TR') + ' ₺', i.id);
+            o.dataset.sure = i.sureDakika;
+            return o;
+        }, seciliHizmet);
+        bilgiGuncelle();
+    }
+
+    async function saatleriYukle(secili) {
+        const sure = hizmet.selectedOptions[0] ? hizmet.selectedOptions[0].dataset.sure : null;
+        if (!doktor.value || !hizmet.value || !tarih.value || !sure) {
+            reset(saat, 'Önce doktor, hizmet ve tarih seçin');
+            return;
+        }
+        const items = await getJson(urls.saat, { doktorId: doktor.value, tarih: tarih.value, sureDakika: sure });
+        if (items.length === 0) { reset(saat, 'Bu tarihte uygun saat yok'); return; }
+        fill(saat, 'Saat seçin', items, i => new Option(i.goruntule, i.deger), secili);
+    }
+
+    kurum.addEventListener('change', () => bolumleriYukle());
+    bolum.addEventListener('change', () => bolumDetayYukle());
+    doktor.addEventListener('change', () => saatleriYukle());
+    hizmet.addEventListener('change', () => { bilgiGuncelle(); saatleriYukle(); });
+    tarih.addEventListener('change', () => saatleriYukle());
+
+    // Doğrulama hatasıyla sayfa yeniden yüklendiyse seçimleri koru
+    (async () => {
+        const sB = bolum.value, sD = doktor.value, sH = hizmet.value, sS = saat.dataset.selected;
+        if (!kurum.value) return;
+        await bolumleriYukle(sB);
+        if (!bolum.value) return;
+        await bolumDetayYukle(sD, sH);
+        await saatleriYukle(sS);
+    })();
+})();
+</script>
+}

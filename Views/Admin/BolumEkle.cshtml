@@ -1,0 +1,34 @@
+@model Bolum
+@{
+    ViewData["Title"] = "Bölüm Ekle";
+    var kurum = ViewBag.Kurum as SaglikKurumu;
+}
+
+<div class="container-xl">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="med-card med-card-body p-4">
+                <h1 class="h4 page-title mb-1">Bölüm ekle</h1>
+                <p class="text-secondary">
+                    Kurum: <strong>@kurum?.Ad</strong>
+                </p>
+
+                <form asp-action="BolumEkle" method="post" novalidate>
+                    <div asp-validation-summary="All" class="alert alert-danger py-2 small"></div>
+                    <input type="hidden" asp-for="KurumId" />
+
+                    <div class="mb-3">
+                        <label asp-for="Ad" class="form-label">Bölüm adı</label>
+                        <input asp-for="Ad" class="form-control" placeholder="Örn. Kardiyoloji" />
+                        <span asp-validation-for="Ad" class="text-danger small"></span>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2">
+                        <a asp-action="KurumDetay" asp-route-id="@Model.KurumId" class="btn btn-outline-secondary">Vazgeç</a>
+                        <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg me-1"></i>Kaydet</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

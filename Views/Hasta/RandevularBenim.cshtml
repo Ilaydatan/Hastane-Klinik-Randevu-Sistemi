@@ -1,0 +1,66 @@
+@model IEnumerable<Randevu>
+@{
+    ViewData["Title"] = "Randevularım";
+}
+
+<div class="container-xl">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+        <h1 class="page-title h3 mb-0">Randevularım</h1>
+        <a asp-action="YeniRandevu" class="btn btn-primary">
+            <i class="bi bi-calendar-plus me-1"></i>Yeni Randevu
+        </a>
+    </div>
+
+    <div class="med-card">
+        @if (!Model.Any())
+        {
+            <div class="empty-state">
+                <i class="bi bi-calendar-x"></i>
+                Henüz bir randevunuz yok.
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-med align-middle">
+                    <thead>
+                        <tr>
+                            <th>Tarih</th>
+                            <th>Doktor</th>
+                            <th>Hizmet</th>
+                            <th>Durum</th>
+                            <th class="text-end">İşlem</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var r in Model.OrderByDescending(x => x.BaslangicZamani))
+                        {
+                            var iptalEdilebilir = r.Durum.ToString() is "Bekliyor" or "Onaylandi"
+                                                  && r.BaslangicZamani > DateTime.Now;
+                            <tr>
+                                <td>
+                                    <div class="fw-semibold">@r.BaslangicZamani.ToString("dd.MM.yyyy")</div>
+                                    <div class="small text-secondary">@r.BaslangicZamani.ToString("HH:mm") – @r.BitisZamani.ToString("HH:mm")</div>
+                                </td>
+                                <td>@r.Doktor?.TamAd</td>
+                                <td>@r.Hizmet?.Ad</td>
+                                <td><partial name="_DurumBadge" model="r.Durum" /></td>
+                                <td class="text-end">
+                                    @if (iptalEdilebilir)
+                                    {
+                                        <form asp-action="Iptal" asp-route-id="@r.Id" method="post" class="d-inline"
+                                              onsubmit="return confirm('Bu randevu iptal edilsin mi?');">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                <i class="bi bi-x-circle me-1"></i>İptal Et
+                                            </button>
+                                        </form>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>

@@ -1,0 +1,112 @@
+@model HastaDashboardViewModel
+@{
+    ViewData["Title"] = "Hasta Paneli";
+}
+
+<div class="container-xl">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+        <div>
+            <h1 class="page-title h3 mb-1">Merhaba, @Model.Hasta.TamAd</h1>
+            <p class="text-secondary mb-0">Randevularınızın özeti aşağıda.</p>
+        </div>
+        <a asp-action="YeniRandevu" class="btn btn-primary">
+            <i class="bi bi-calendar-plus me-1"></i>Yeni Randevu Al
+        </a>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="stat-card">
+                <div class="stat-icon blue"><i class="bi bi-calendar3"></i></div>
+                <div><div class="stat-value">@Model.ToplamRandevuSayisi</div><div class="stat-label">Toplam randevu</div></div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card">
+                <div class="stat-icon amber"><i class="bi bi-hourglass-split"></i></div>
+                <div><div class="stat-value">@Model.BelikyorSayisi</div><div class="stat-label">Onay bekleyen</div></div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card">
+                <div class="stat-icon green"><i class="bi bi-check2-circle"></i></div>
+                <div><div class="stat-value">@Model.OnaylananSayisi</div><div class="stat-label">Onaylanan</div></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-6">
+            <div class="med-card h-100">
+                <div class="med-card-header">
+                    <h2 class="h6 mb-0"><i class="bi bi-calendar-event me-2"></i>Yaklaşan randevular</h2>
+                    <a asp-action="RandevularBenim" class="small">Tümü</a>
+                </div>
+                <div class="med-card-body">
+                    @if (!Model.YaklasanRandevular.Any())
+                    {
+                        <div class="empty-state">
+                            <i class="bi bi-calendar-x"></i>
+                            Yaklaşan randevunuz yok.
+                        </div>
+                    }
+                    @foreach (var r in Model.YaklasanRandevular)
+                    {
+                        var iptalEdilebilir = r.Durum.ToString() is "Bekliyor" or "Onaylandi";
+                        <div class="randevu-item">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="randevu-date">
+                                    <span class="gun">@r.BaslangicZamani.ToString("dd")</span>
+                                    <span class="ay">@r.BaslangicZamani.ToString("MMM")</span>
+                                </div>
+                                <div>
+                                    <div class="fw-semibold">@r.Doktor?.TamAd</div>
+                                    <div class="small text-secondary">@r.Hizmet?.Ad · @r.BaslangicZamani.ToString("HH:mm")</div>
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center gap-2">
+                                <partial name="_DurumBadge" model="r.Durum" />
+                                @if (iptalEdilebilir)
+                                {
+                                    <form asp-action="Iptal" asp-route-id="@r.Id" method="post"
+                                          onsubmit="return confirm('Bu randevu iptal edilsin mi?');">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="İptal et">
+                                            <i class="bi bi-x-lg"></i>
+                                        </button>
+                                    </form>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="med-card h-100">
+                <div class="med-card-header">
+                    <h2 class="h6 mb-0"><i class="bi bi-clock-history me-2"></i>Geçmiş randevular</h2>
+                </div>
+                <div class="med-card-body">
+                    @if (!Model.GecmisRandevular.Any())
+                    {
+                        <div class="empty-state">
+                            <i class="bi bi-inbox"></i>
+                            Geçmiş randevu bulunmuyor.
+                        </div>
+                    }
+                    @foreach (var r in Model.GecmisRandevular)
+                    {
+                        <div class="randevu-item">
+                            <div>
+                                <div class="fw-semibold">@r.Doktor?.TamAd</div>
+                                <div class="small text-secondary">@r.Hizmet?.Ad · @r.BaslangicZamani.ToString("dd.MM.yyyy HH:mm")</div>
+                            </div>
+                            <partial name="_DurumBadge" model="r.Durum" />
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

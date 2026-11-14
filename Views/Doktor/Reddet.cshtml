@@ -1,0 +1,34 @@
+@model RandevuReddetViewModel
+@{
+    ViewData["Title"] = "Randevuyu Reddet";
+}
+
+<div class="container-xl">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="med-card med-card-body p-4">
+                <h1 class="h4 page-title mb-1">Randevuyu reddet</h1>
+                <p class="text-secondary">Hastanın bilgilendirilebilmesi için bir red nedeni yazın.</p>
+
+                <form asp-action="Reddet" method="post" novalidate>
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small"></div>
+                    <input type="hidden" asp-for="RandevuId" />
+
+                    <div class="mb-3">
+                        <label asp-for="Neden" class="form-label"></label>
+                        <textarea asp-for="Neden" class="form-control" rows="4"
+                                  placeholder="Örn. Bu saatte ameliyatım bulunuyor."></textarea>
+                        <span asp-validation-for="Neden" class="text-danger small"></span>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2">
+                        <a asp-action="Randevular" class="btn btn-outline-secondary">Vazgeç</a>
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-x-circle me-1"></i>Randevuyu Reddet
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

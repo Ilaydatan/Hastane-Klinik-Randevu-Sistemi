@@ -1,0 +1,43 @@
+@model IEnumerable<Hasta>
+@{
+    ViewData["Title"] = "Hastalar";
+}
+
+<div class="container-xl">
+    <h1 class="page-title h3 mb-4">Hastalar</h1>
+
+    <div class="med-card">
+        @if (!Model.Any())
+        {
+            <div class="empty-state"><i class="bi bi-person-x"></i>Henüz kayıtlı hasta yok.</div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-med align-middle">
+                    <thead>
+                        <tr>
+                            <th>Hasta</th>
+                            <th>E-posta</th>
+                            <th>Telefon</th>
+                            <th>TC Kimlik No</th>
+                            <th>Doğum tarihi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var h in Model)
+                        {
+                            <tr>
+                                <td class="fw-semibold">@h.TamAd</td>
+                                <td>@h.Email</td>
+                                <td>@h.Telefon</td>
+                                <td>@h.TcKimlikNo</td>
+                                <td>@(h.DogumTarihi?.ToString("dd.MM.yyyy"))</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>

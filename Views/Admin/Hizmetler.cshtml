@@ -1,0 +1,178 @@
+﻿@model IEnumerable<HastaneRandevu.Models.Domain.Hizmet>
+
+@{
+    ViewData["Title"] = "Hizmet Yönetimi";
+}
+
+<div class="container-fluid py-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+        <div>
+            <h2 class="fw-bold text-white">
+                <i class="bi bi-heart-pulse text-info"></i>
+                Hizmet Yönetimi
+            </h2>
+            <p class="text-secondary mb-0">
+                Hastane ve kliniklerde sunulan sağlık hizmetlerini yönetin.
+            </p>
+        </div>
+
+        <a asp-controller="Admin"
+           asp-action="HizmetEkle"
+           class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i>
+            Yeni Hizmet Ekle
+        </a>
+    </div>
+
+    @if (TempData["Basari"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show">
+            @TempData["Basari"]
+            <button type="button" class="btn-close"
+                    data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="card bg-dark border-secondary h-100">
+                <div class="card-body">
+                    <div class="text-secondary">Toplam Hizmet</div>
+                    <h3 class="text-white fw-bold">
+                        @Model.Count()
+                    </h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card bg-dark border-secondary h-100">
+                <div class="card-body">
+                    <div class="text-secondary">Aktif Hizmet</div>
+                    <h3 class="text-success fw-bold">
+                        @Model.Count(h => h.AktifMi)
+                    </h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card bg-dark border-secondary h-100">
+                <div class="card-body">
+                    <div class="text-secondary">Pasif Hizmet</div>
+                    <h3 class="text-warning fw-bold">
+                        @Model.Count(h => !h.AktifMi)
+                    </h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card bg-dark border-secondary">
+        <div class="card-header border-secondary py-3">
+            <h5 class="text-white mb-0">Hizmet Listesi</h5>
+        </div>
+
+        <div class="card-body">
+            @if (!Model.Any())
+            {
+                <div class="text-center py-5">
+                    <i class="bi bi-clipboard2-pulse display-3 text-secondary"></i>
+                    <h5 class="text-white mt-3">Henüz hizmet eklenmemiş.</h5>
+                    <p class="text-secondary">
+                        Yeni hizmet ekleyerek başlayabilirsiniz.
+                    </p>
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-dark table-hover align-middle">
+                        <thead>
+                            <tr>
+                                <th>Hizmet Adı</th>
+                                <th>Bölüm</th>
+                                <th>Süre</th>
+                                <th>Ücret</th>
+                                <th>Durum</th>
+                                <th class="text-end">İşlemler</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @foreach (var hizmet in Model)
+                            {
+                                <tr>
+                                    <td>
+                                        <span class="fw-semibold">
+                                            @hizmet.Ad
+                                        </span>
+                                        @if (!string.IsNullOrWhiteSpace(hizmet.Aciklama))
+                                        {
+                                            <div class="small text-secondary">
+                                                @hizmet.Aciklama
+                                            </div>
+                                        }
+                                    </td>
+
+                                    <td>
+                                        @(hizmet.Bolum?.Ad ?? "Bölüm bilgisi yok")
+                                    </td>
+
+                                    <td>@hizmet.SureFormatli</td>
+
+                                    <td class="fw-semibold text-info">
+                                        @hizmet.UcretFormatli
+                                    </td>
+
+                                    <td>
+                                        @if (hizmet.AktifMi)
+                                        {
+                                            <span class="badge bg-success">
+                                                Aktif
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">
+                                                Pasif
+                                            </span>
+                                        }
+                                    </td>
+
+                                    <td class="text-end">
+                                        <a asp-action="HizmetDuzenle"
+                                           asp-route-id="@hizmet.Id"
+                                           class="btn btn-sm btn-outline-info">
+                                            <i class="bi bi-pencil"></i>
+                                            Düzenle
+                                        </a>
+
+                                        @if (hizmet.AktifMi)
+                                        {
+                                            <form asp-action="HizmetSil"
+                                                  asp-route-id="@hizmet.Id"
+                                                  method="post"
+                                                  class="d-inline"
+                                                  onsubmit="return confirm('Bu hizmeti pasife almak istediğinize emin misiniz?');">
+
+                                                @Html.AntiForgeryToken()
+
+                                                <button type="submit"
+                                                        class="btn btn-sm btn-outline-danger">
+                                                    <i class="bi bi-trash"></i>
+                                                    Pasife Al
+                                                </button>
+                                            </form>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</div>

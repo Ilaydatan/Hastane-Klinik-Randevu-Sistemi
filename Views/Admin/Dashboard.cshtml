@@ -1,0 +1,117 @@
+@model AdminDashboardViewModel
+@{
+    ViewData["Title"] = "Yönetim Paneli";
+}
+
+<div class="container-xl">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+        <div>
+            <h1 class="page-title h3 mb-1">Yönetim paneli</h1>
+            <p class="text-secondary mb-0">Sistemin genel durumu.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a asp-action="KurumEkle" class="btn btn-primary"><i class="bi bi-building-add me-1"></i>Kurum Ekle</a>
+            <a asp-action="DoktorEkle" class="btn btn-outline-light"><i class="bi bi-person-plus me-1"></i>Doktor Ekle</a>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-lg-3">
+            <div class="stat-card">
+                <div class="stat-icon blue"><i class="bi bi-people"></i></div>
+                <div><div class="stat-value">@Model.ToplamHasta</div><div class="stat-label">Hasta</div></div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="stat-card">
+                <div class="stat-icon cyan"><i class="bi bi-person-badge"></i></div>
+                <div><div class="stat-value">@Model.ToplamDoktor</div><div class="stat-label">Doktor</div></div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="stat-card">
+                <div class="stat-icon green"><i class="bi bi-buildings"></i></div>
+                <div><div class="stat-value">@Model.ToplamKurum</div><div class="stat-label">Kurum</div></div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="stat-card">
+                <div class="stat-icon amber"><i class="bi bi-hourglass-split"></i></div>
+                <div><div class="stat-value">@Model.BelikyorRandevu</div><div class="stat-label">Onay bekleyen</div></div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="stat-card">
+                <div class="stat-icon blue"><i class="bi bi-calendar-day"></i></div>
+                <div><div class="stat-value">@Model.BugunkuRandevu</div><div class="stat-label">Bugünkü randevu</div></div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="stat-card">
+                <div class="stat-icon cyan"><i class="bi bi-calendar3"></i></div>
+                <div><div class="stat-value">@Model.ToplamRandevu</div><div class="stat-label">Toplam randevu</div></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="med-card h-100">
+                <div class="med-card-header">
+                    <h2 class="h6 mb-0"><i class="bi bi-calendar-range me-2"></i>Son randevular</h2>
+                    <a asp-action="TumRandevular" class="small">Tümü</a>
+                </div>
+                @if (!Model.SonRandevular.Any())
+                {
+                    <div class="empty-state"><i class="bi bi-calendar-x"></i>Henüz randevu yok.</div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-med align-middle">
+                            <thead>
+                                <tr><th>Tarih</th><th>Hasta</th><th>Doktor</th><th>Durum</th></tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var r in Model.SonRandevular)
+                                {
+                                    <tr>
+                                        <td>@r.BaslangicZamani.ToString("dd.MM.yyyy HH:mm")</td>
+                                        <td>@r.Hasta?.TamAd</td>
+                                        <td>@r.Doktor?.TamAd</td>
+                                        <td><partial name="_DurumBadge" model="r.Durum" /></td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="med-card h-100">
+                <div class="med-card-header">
+                    <h2 class="h6 mb-0"><i class="bi bi-buildings me-2"></i>Kurumlar</h2>
+                    <a asp-action="Kurumlar" class="small">Tümü</a>
+                </div>
+                <div class="med-card-body">
+                    @if (!Model.Kurumlar.Any())
+                    {
+                        <div class="empty-state"><i class="bi bi-building-x"></i>Kurum eklenmemiş.</div>
+                    }
+                    @foreach (var k in Model.Kurumlar)
+                    {
+                        <div class="randevu-item">
+                            <div>
+                                <a asp-action="KurumDetay" asp-route-id="@k.Id" class="fw-semibold text-decoration-none">@k.Ad</a>
+                                <div class="small text-secondary">@k.KurumTuruAdi</div>
+                            </div>
+                            <i class="bi bi-chevron-right text-secondary"></i>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
